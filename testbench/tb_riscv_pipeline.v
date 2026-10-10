@@ -6,36 +6,36 @@ module tb_riscv_pipeline;
     reg clk;
     reg reset;
 
-    // Instantiate the processor top module
     riscv_pipeline dut (
         .clk(clk),
         .reset(reset)
     );
 
-    // Generate a 10 ns clock
+    // 10 ns clock period
     always #5 clk = ~clk;
 
     initial begin
         clk = 1'b0;
         reset = 1'b1;
 
-        // Hold reset for two clock edges
+        // Apply reset
         #20;
         reset = 1'b0;
 
-        // Allow the pipeline to run
-        #100;
+        // Observe six instructions
+        repeat (10) begin
+            @(posedge clk);
+            #1;
+            $display(
+                "Time=%0t | PC=%08h | Instruction=%08h",
+                $time,
+                dut.pc_current,
+                dut.instruction
+            );
+        end
 
-        $display("Simulation completed.");
+        $display("Instruction fetch test completed.");
         $finish;
-    end
-
-    // Monitor the internal program counter
-    initial begin
-        $monitor(
-            "Time=%0t reset=%b PC=%h",
-            $time, reset, dut.pc_current
-        );
     end
 
 endmodule
